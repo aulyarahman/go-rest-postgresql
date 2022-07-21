@@ -22,6 +22,7 @@ func items(router chi.Router) {
 		router.Put("/", updateItem)
 		router.Delete("/", deleteItem)
 	})
+
 }
 
 func ItemContext(next http.Handler) http.Handler {

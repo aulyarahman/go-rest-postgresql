@@ -2,14 +2,16 @@ package models
 
 import (
 	"fmt"
+	"github.com/go-playground/validator"
 	"net/http"
 )
 
 type User struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Address   string `json:"address"`
-	CreatedAt string `json:"created_at"`
+	IdUser      int    `json:"id_user"`
+	Name        string `json:"name" validate:"required,min=10,max=32"`
+	Address     string `json:"address" validate:"required"`
+	PhoneNumber string `json:"phone_number" validate:"required,max=18"`
+	CreatedAt   string `json:"created_at"`
 }
 
 type UserList struct {
@@ -17,8 +19,11 @@ type UserList struct {
 }
 
 func (u *User) Bind(r *http.Request) error {
-	if u.Name == "" || u.Address == "" {
-		return fmt.Errorf(`name Or Address Is Required Field`)
+	validate := validator.New()
+
+	if err := validate.Struct(u); err != nil {
+		fmt.Println(err)
+		return err
 	}
 	return nil
 

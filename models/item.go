@@ -1,14 +1,14 @@
 package models
 
 import (
-	"fmt"
+	"github.com/go-playground/validator"
 	"net/http"
 )
 
 type Item struct {
 	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
 	CreatedAt   string `json:"created_at"`
 }
 
@@ -17,8 +17,9 @@ type ItemList struct {
 }
 
 func (i *Item) Bind(r *http.Request) error {
-	if i.Name == "" {
-		return fmt.Errorf("Name is a required field")
+	validate := validator.New()
+	if err := validate.Struct(i); err != nil {
+		return err
 	}
 	return nil
 }

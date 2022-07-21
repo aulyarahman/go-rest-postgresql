@@ -16,27 +16,31 @@ var userIdKey = "userID"
 func users(router chi.Router) {
 	router.Get("/", getAllUsers)
 	router.Post("/", createUsers)
-	router.Route("/{userId}", func(r chi.Router) {
+	router.Route("/{userId}", func(router chi.Router) {
 		router.Use(UserContext)
 		router.Get("/", getUser)
 		router.Put("/", updateUser)
 		router.Delete("/", deleteUser)
 	})
+
 }
 
 func UserContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		itemId := chi.URLParam(r, "userId")
-		if itemId == "" {
+		userId := chi.URLParam(r, "userId")
+
+		fmt.Println("This Params", userId)
+
+		if userId == "" {
 			render.Render(w, r, ErrorRender(fmt.Errorf("User ID is required")))
 			return
 		}
-		id, err := strconv.Atoi(itemId)
+		id, err := strconv.Atoi(userId)
 		if err != nil {
 			render.Render(w, r, ErrorRender(fmt.Errorf("Invalid user ID")))
 		}
 
-		ctx := context.WithValue(r.Context(), itemIdKey, id)
+		ctx := context.WithValue(r.Context(), userIdKey, id)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 
@@ -74,6 +78,7 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) {
 func getUser(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value(userIdKey).(int)
 	user, err := dbInstance.GetUserById(userId)
+
 	if err != nil {
 		if err == db.ErrNoMatch {
 			render.Render(w, r, ErrNotFound)

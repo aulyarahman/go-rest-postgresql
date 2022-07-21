@@ -12,10 +12,17 @@ var dbInstance db.Database
 func NewHandler(db db.Database) http.Handler {
 	router := chi.NewRouter()
 	dbInstance = db
+
 	router.MethodNotAllowed(methodNotAllowedHandler)
 	router.NotFound(notFoundHandler)
+
+	router.Route("/auth", auth)
+
 	router.Route("/items", items)
+
 	router.Route("/users", users)
+
+	router.Route("/payment", payemnt)
 
 	return router
 }
